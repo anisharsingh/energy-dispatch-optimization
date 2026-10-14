@@ -1,0 +1,36 @@
+{
+  "gas_price": 2.9,
+  "reserve_fraction": 0.1,
+  "ed_cost": 448404.6,
+  "ed_peak_hour_price": 37.20000000001164,
+  "uc_cost": 570701.05,
+  "uc_solve_seconds": 0.14598849997855723,
+  "uc_mip_gap": 0.0,
+  "uc_variables": 600,
+  "uc_constraints": 1056,
+  "uc_starts": 4,
+  "uc_curtailed_mwh": 210.0,
+  "uc_avg_marginal_price": 24.37320253596245,
+  "sweep_avg_price_at_2": 17.900034270061717,
+  "sweep_avg_price_at_10": 76.2540743154962,
+  "breakeven_by_hand": 4.399999999999999,
+  "breakeven_model_flips": true,
+  "wind_2x": {
+    "feasible": true,
+    "base_cost": 570701.05,
+    "alt_cost": 504683.6,
+    "base_curtailed_mwh": 210.0,
+    "alt_curtailed_mwh": 2075.0,
+    "base_starts": 4,
+    "alt_starts": 3
+  },
+  "reserve_15pct": {
+    "feasible": true,
+    "base_cost": 570701.05,
+    "alt_cost": 594391.55,
+    "cost_increase": 23690.5,
+    "cost_increase_pct": 4.1511225535681096,
+    "base_starts": 4,
+    "alt_starts": 5
+  }
+}
