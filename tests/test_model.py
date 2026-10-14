@@ -93,3 +93,20 @@ def test_breakeven_formula_for_steam_vs_peaker(inputs):
     # at the break-even price the two marginal costs are equal
     mc = marginal_costs(inputs, g_star)
     assert mc["ST1"] == pytest.approx(mc["GT1"])
+
+
+# ---------------- forecast miss ----------------
+def test_zero_forecast_miss_costs_nothing(inputs, uc):
+    res = an.forecast_miss_scenario(inputs, uc, BASE_GAS_PRICE, miss=0.0)
+    for case in res.values():
+        assert case["feasible"]
+        assert case["extra_cost"] == pytest.approx(0.0, abs=1.0)
+
+
+def test_forecast_miss_never_beats_perfect_foresight(inputs, uc):
+    # the schedule built on a wrong forecast is still a feasible schedule for the real demand,
+    # so it cannot cost less than the optimum that knew the real demand
+    res = an.forecast_miss_scenario(inputs, uc, BASE_GAS_PRICE, miss=0.03)
+    for case in res.values():
+        if case.get("feasible"):
+            assert case["extra_cost"] >= -1e-6

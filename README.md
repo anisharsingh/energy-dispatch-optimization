@@ -96,6 +96,8 @@ Results from `python run_all.py` at a $2.90/MMBtu gas price and a 10% reserve re
 | Break-even gas price, ST1 vs GT1 (by hand / model flips) | $4.40 / yes |
 | 2x wind: curtailment and cost change | curtailment 210 to 2,075 MWh; cost $570,701 to $504,684 (-$66,017); starts 4 to 3 |
 | 15% reserve: cost increase | +$23,690 (+4.2%); starts 4 to 5 |
+| 3% under-forecast (commit on 97% of actual demand) | cannot meet the reserve requirement in 6 hours (worst shortfall 46 MW); energy balance still met |
+| 3% over-forecast (commit on 103% of actual demand) | +$5,824 (+1.0%) vs perfect foresight; 4 planned start-ups |
 
 **Economic dispatch: hourly output by unit, with the marginal price**
 
@@ -136,7 +138,7 @@ These are results for an invented fleet, so they show how the model behaves, not
 
 ## Next steps
 
-- Feed a forecasted day from my load forecasting project in as demand and measure what a 3% forecast miss costs.
+- Replace the stylized 3% miss with real forecast errors from my load forecasting project once that project has results.
 - Add a two-bus network with a transmission limit to see congestion and locational prices.
 - Extend to a multi-day horizon with rolling windows.
 

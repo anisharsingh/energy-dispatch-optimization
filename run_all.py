@@ -102,6 +102,12 @@ def main() -> dict:
     print(rs)
     results["reserve_15pct"] = rs
 
+    banner("Forecast miss: commit on a 3% wrong demand forecast, then serve the actual demand")
+    fm = an.forecast_miss_scenario(inputs, uc, gas, miss=0.03)
+    for label, row in fm.items():
+        print(label, row)
+    results["forecast_miss_3pct"] = fm
+
     (DOCS / "results.json").write_text(json.dumps(results, indent=2, default=float))
     print(f"\nSaved charts, tables and results.json to {DOCS}")
     return results

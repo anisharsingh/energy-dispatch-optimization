@@ -353,3 +353,52 @@ def plot_gas_sweep(sweep: pd.DataFrame, path) -> None:
     fig.tight_layout()
     fig.savefig(path, dpi=150)
     plt.close(fig)
+
+
+# ======================================================================================
+# Forecast-miss scenario: commit on a forecast, then serve the actual demand
+# ======================================================================================
+def forecast_miss_scenario(inputs: Inputs, perfect: model.Result, gas_price: float = BASE_GAS_PRICE,
+                           miss: float = 0.03, reserve_frac: float = RESERVE_FRACTION) -> dict:
+    """What does a forecast that is off by `miss` cost in the unit-commitment schedule?
+
+    Day-ahead, units are committed using a forecast of demand (actual demand times 1 - miss for an
+    under-forecast, times 1 + miss for an over-forecast). Next day, the actual demand arrives and
+    the commitment can no longer change, so only output levels can adjust.
+
+    Compared with `perfect`, the unit-commitment solution that knew the actual demand all along:
+      extra cost = (cost of the forecast-based schedule serving actual demand) - (perfect-foresight cost)
+    This is never negative, because the realized schedule is also feasible for the perfect-foresight problem.
+    If the fixed schedule cannot serve actual demand with the reserve requirement, the result says so
+    and also reports whether energy balance alone is feasible (a reserve shortfall).
+
+    The miss is a stylized, uniform percentage, not an error from a real forecast model.
+    """
+    actual = list(inputs.load)
+    out = {}
+    for label, factor in (("under_forecast", 1 - miss), ("over_forecast", 1 + miss)):
+        forecast = [d * factor for d in actual]
+        plan = model.run_uc(inputs, gas_price, demand=forecast, reserve_frac=reserve_frac)
+        if not plan.info.optimal:
+            out[label] = {"planned": False}
+            continue
+        row = {"planned": True, "planned_starts": count_starts(plan.commitment, inputs),
+               "perfect_cost": perfect.info.objective}
+        real = model.run_uc_fixed(inputs, plan.commitment, gas_price, demand=actual, reserve_frac=reserve_frac)
+        if real.info.optimal:
+            row.update(feasible=True, realized_cost=real.info.objective,
+                       extra_cost=real.info.objective - perfect.info.objective,
+                       extra_cost_pct=100 * (real.info.objective / perfect.info.objective - 1))
+        else:
+            row["feasible"] = False
+            energy_only = model.run_uc_fixed(inputs, plan.commitment, gas_price, demand=actual, reserve_frac=0.0)
+            row["feasible_without_reserve"] = bool(energy_only.info.optimal)
+            # Best-case headroom shortfall: even if all available wind is used, how far below the
+            # reserve requirement do the committed units fall? (Ignores Pmin and ramp effects.)
+            committed_mw = (plan.commitment[inputs.units].to_numpy() * inputs.thermal["pmax"].to_numpy()).sum(axis=1)
+            needed_from_thermal = np.maximum(np.array(actual) - inputs.nuclear_mw - np.array(inputs.wind_avail), 0)
+            shortfall = np.maximum(reserve_frac * np.array(actual) - (committed_mw - needed_from_thermal), 0)
+            row["reserve_short_hours"] = int((shortfall > 1e-6).sum())
+            row["reserve_short_max_mw"] = float(shortfall.max())
+        out[label] = row
+    return out
