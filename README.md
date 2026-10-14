@@ -97,7 +97,21 @@ Results from `python run_all.py` at a $2.90/MMBtu gas price and a 10% reserve re
 | 2x wind: curtailment and cost change | curtailment 210 to 2,075 MWh; cost $570,701 to $504,684 (-$66,017); starts 4 to 3 |
 | 15% reserve: cost increase | +$23,690 (+4.2%); starts 4 to 5 |
 
-Charts: `docs/ed_dispatch.png`, `docs/uc_dispatch.png`, `docs/commitment_heatmap.png`, `docs/gas_sweep.png`.
+**Economic dispatch: hourly output by unit, with the marginal price**
+
+![Economic dispatch](docs/ed_dispatch.png)
+
+**Unit commitment: hourly output by unit, with the fixed-commitment price**
+
+![Unit commitment dispatch](docs/uc_dispatch.png)
+
+**Commitment schedule (1 = unit on)**
+
+![Commitment schedule heatmap](docs/commitment_heatmap.png)
+
+**Gas price sweep: total cost, load-weighted marginal price and energy share by unit**
+
+![Gas price sweep](docs/gas_sweep.png)
 
 **Why UC cost is at least ED cost:** the unit-commitment problem has every ED constraint plus more (minimum output, ramps, min up/down, reserve) and adds no-load and start-up costs, so its feasible set is smaller and its objective has extra terms. It can never be cheaper.
 
@@ -128,4 +142,4 @@ These are results for an invented fleet, so they show how the model behaves, not
 
 ## Reproducibility
 
-After a clean install, run `pip freeze | grep -i -E "pyomo|highspy|pandas|numpy|matplotlib|pytest"` and copy the exact versions into `requirements.txt`, then confirm `python run_all.py` and `pytest` still pass from a fresh virtual environment.
+Developed and run with Python 3.12.4, Pyomo 6.10.1, HiGHS (highspy) 1.15.1, pandas 2.2.2, numpy 1.26.4, matplotlib 3.8.4, pytest 7.4.4. The exact versions are pinned in `requirements.txt`.

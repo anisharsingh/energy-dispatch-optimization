@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .edit_backup_results/
+.edit_backup_finish/
